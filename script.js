@@ -1,4 +1,4 @@
-let width = window.innerWidth;
+let width = window.innerWidth - 220;
 let height = window.innerHeight - 25;
 let color = document.getElementsByClassName("color");
 let container = document.getElementById("container");
@@ -267,3 +267,50 @@ stage.on("click tap", function(e) {
 });
 
 stage.add(transformLayer);
+
+let stageContainer = stage.container();
+container.tabIndex = 1;
+container.focus();
+
+container.addEventListener('keydown', function(e) {
+
+    switch (e.keyCode) {
+        case 37:
+            {
+                for (let i = 0; i < tr.nodes().length; i++) {
+                    tr.nodes()[i].setX(tr.nodes()[i].x() - 50)
+                }
+                break;
+            }
+        case 38:
+            {
+                for (let i = 0; i < tr.nodes().length; i++) {
+                    tr.nodes()[i].setY(tr.nodes()[i].y() - 50)
+                }
+                break;
+            }
+        case 39:
+            {
+                for (let i = 0; i < tr.nodes().length; i++) {
+                    tr.nodes()[i].setX(tr.nodes()[i].x() + 50)
+                }
+                break;
+            }
+        case 40:
+            {
+                for (let i = 0; i < tr.nodes().length; i++) {
+                    tr.nodes()[i].setY(tr.nodes()[i].y() + 50)
+                }
+                break;
+            }
+        case 46:
+            {
+                for (let i = 0; i < tr.nodes().length; i++) {
+                    tr.nodes()[i].remove()
+                }
+                tr.nodes([])
+                break;
+            }
+    }
+    e.preventDefault();
+});
