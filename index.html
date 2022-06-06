@@ -1,118 +1,128 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <script src="https://unpkg.com/konva@8.3.5/konva.min.js"></script>
-        <meta charset="utf-8" />
-        <title>Konva Simple Window drawing</title>
-        <style>
-            body {
-                padding: 0;
-                margin: 0;
-                overflow: hidden;
-            }
 
-            #container {
-                border: 1px solid grey;
-                background-color: lightgrey;
-            }
+<head>
+    <script src="https://unpkg.com/konva@8.3.5/konva.min.js"></script>
+    <meta charset="utf-8" />
+    <title>Konva Simple Window drawing</title>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+        
+        #container {
+            border: 1px solid grey;
+            background-color: lightgrey;
+        }
+        
+        #controls {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+        }
+        
+        .full {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+        }
+        
+        .tool-wrap {
+            padding: 10px 5px;
+        }
+        
+        .color-selector {
+            margin-top: 10px;
+        }
+        
+        .color {
+            height: 30px;
+            border: 1px solid black;
+        }
+        
+        button {
+            margin-top: 10px;
+        }
+        
+        .shape-wrap {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            margin-top: 20px;
+        }
+        
+        .shape {
+            border: 1px solid black;
+            text-align: center;
+            padding: 20px;
+            margin: 5px;
+        }
+        
+        .draw-mode-wrap {
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+            padding: 10px 0;
+        }
+    </style>
+    <link rel="stylesheet" href="style.css" />
+</head>
 
-            #controls {
-                position: absolute;
-                top: 4px;
-                left: 4px;
-            }
-            .full {
-                height: 100vh;
-                width: 100vw;
-                display: flex;
-            }
-            .tool-wrap {
-                padding: 10px 5px;
-            }
-            .color-selector {
-                margin-top: 10px;
-            }
-            .color {
-                height: 30px;
-                border: 1px solid black;
-            }
-            button {
-                margin-top: 10px;
-            }
-            .shape-wrap {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                margin-top: 20px;
-            }
-            .shape {
-                border: 1px solid black;
-                text-align: center;
-                padding: 20px;
-                margin: 5px;
-            }
-            .draw-mode-wrap {
-                display: flex;
-                justify-content: flex-start;
-                align-items: flex-start;
-                padding: 10px 0;
-            }
-        </style>
-        <link rel="stylesheet" href="style.css" />
-    </head>
-
-    <body>
-        <div class="full">
-            <div class="tool-wrap">
-                <div>Draw mode</div>
-                <div class="draw-mode-wrap">
-                    <label class="switch">
+<body>
+    <div class="full">
+        <div class="tool-wrap">
+            <div>Draw mode</div>
+            <div class="draw-mode-wrap">
+                <label class="switch">
                         <input type="checkbox" id="draw-mode" />
                         <span class="slider"></span>
                     </label>
-                </div>
+            </div>
 
-                <select id="tool">
+            <select id="tool">
                     <option value="brush">Brush</option>
                     <option value="eraser">Eraser</option>
                 </select>
-                <div>
-                    <input type="range" id="volume" name="volume" min="0" max="100" onchange="handleChangeValue(this.value)" />
-                </div>
-
-                <div>
-                    <button onClick="reset()">reset</button>
-                </div>
-                <div class="color-selector">
-                    <div class="color" data-color="red"></div>
-                    <div class="color" data-color="white"></div>
-                    <div class="color" data-color="purple"></div>
-                    <div class="color" data-color="#ff8f00"></div>
-                    <div class="color" data-color="#ff0fff"></div>
-                    <div class="color" data-color="#ffff00"></div>
-                    <div class="color" data-color="#123456"></div>
-                    <div class="color" data-color="black"></div>
-                </div>
-
-                <div class="shape-wrap">
-                    <div class="shape" data-shape="circle" draggable="true">
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkzk6nxwhxqNfJnMiYfR6CahPfZ1vshrP2zw&usqp=CAU" width="50" height="50" />
-                    </div>
-                    <div class="shape" data-shape="square" draggable="true">
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ2_G75pYnvTu0HTZNUJs7JF1JEV1fgTnOCw&usqp=CAU" width="50" height="50" />
-                    </div>
-
-                    <div class="shape" data-shape="triangle" draggable="true">
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0FalaL1z0KqO4KFtmiQO5wheWtM4FxcmHXQ&usqp=CAU" width="50" height="50" />
-                    </div>
-                    <div class="shape" data-shape="rect" draggable="true">
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ2_G75pYnvTu0HTZNUJs7JF1JEV1fgTnOCw&usqp=CAU" width="25" height="50" />
-                    </div>
-                </div>
+            <div>
+                <input type="range" id="volume" name="volume" min="0" max="100" onchange="handleChangeValue(this.value)" />
             </div>
 
-            <div id="container"></div>
+            <div>
+                <button onClick="reset()">reset</button>
+            </div>
+            <div class="color-selector">
+                <div class="color" data-color="red"></div>
+                <div class="color" data-color="white"></div>
+                <div class="color" data-color="purple"></div>
+                <div class="color" data-color="#ff8f00"></div>
+                <div class="color" data-color="#ff0fff"></div>
+                <div class="color" data-color="#ffff00"></div>
+                <div class="color" data-color="#123456"></div>
+                <div class="color" data-color="black"></div>
+            </div>
+
+            <div class="shape-wrap">
+                <div class="shape" data-shape="circle" draggable="true">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkzk6nxwhxqNfJnMiYfR6CahPfZ1vshrP2zw&usqp=CAU" width="50" height="50" />
+                </div>
+                <div class="shape" data-shape="square" draggable="true">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ2_G75pYnvTu0HTZNUJs7JF1JEV1fgTnOCw&usqp=CAU" width="50" height="50" />
+                </div>
+
+                <div class="shape" data-shape="triangle" draggable="true">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0FalaL1z0KqO4KFtmiQO5wheWtM4FxcmHXQ&usqp=CAU" width="50" height="50" />
+                </div>
+                <div class="shape" data-shape="rect" draggable="true">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ2_G75pYnvTu0HTZNUJs7JF1JEV1fgTnOCw&usqp=CAU" width="25" height="50" />
+                </div>
+            </div>
         </div>
 
-        <script src="script.js"></script>
-    </body>
+        <div id="container"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
 </html>

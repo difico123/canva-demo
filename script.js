@@ -1,30 +1,45 @@
-var width = window.innerWidth;
-var height = window.innerHeight - 25;
+let width = window.innerWidth;
+let height = window.innerHeight - 25;
 let color = document.getElementsByClassName("color");
-var container = document.getElementById("container");
-var select = document.getElementById("tool");
-var range = document.getElementById("volume").value;
+let container = document.getElementById("container");
+let select = document.getElementById("tool");
+let range = document.getElementById("volume").value;
 let drawMode = document.getElementById("draw-mode");
 let shapes = document.getElementsByClassName("shape");
 let shape = "";
 
 // first we need Konva core things: stage and layer
-var stage = new Konva.Stage({
+let stage = new Konva.Stage({
     container: "container",
     width: width,
     height: height,
 });
 
-var layer = new Konva.Layer();
+let screenText = new Konva.Text({
+    x: 15,
+    y: 15,
+    text: 'X: 0 Y: 0',
+    fontSize: 30,
+    fontFamily: 'Calibri',
+    fill: 'green',
+});
+
+
+let layer = new Konva.Layer();
+let transformLayer = new Konva.Layer()
+let tr = new Konva.Transformer();
+
+transformLayer.add(tr);
 stage.add(layer);
+layer.add(screenText)
 
 // then we are going to draw into special canvas element
-var canvas = document.createElement("canvas");
+let canvas = document.createElement("canvas");
 canvas.width = stage.width();
 canvas.height = stage.height();
 
 // created canvas we can add to layer as "Konva.Image" element
-var image = new Konva.Image({
+let image = new Konva.Image({
     image: canvas,
     x: 0,
     y: 0,
@@ -38,34 +53,10 @@ function getPos() {
         y: lastPointerPosition.y,
     };
 }
-// image.on("mousemove touchmove", (e) => {
-//     console.log(localPos);
-// });
 
-// var blueLine = new Konva.Line({
-//     y: 50,
-//     points: [10, 70, 40, 23, 150, 60, 250, 20],
-//     stroke: "blue",
-//     strokeWidth: 10,
-//     lineCap: "round",
-//     lineJoin: "round",
-//     dash: [29, 20, 0.001, 20],
-//     draggable: true,
-//     name: "rect",
-// });
-
-// layer.add(blueLine);
-
-// circle.on("mouseover", function () {
-//     document.body.style.cursor = "pointer";
-// });
-
-// circle.on("mouseout", function () {
-//     document.body.style.cursor = "default";
-// });
 
 // Good. Now we need to get access to context element
-var context = canvas.getContext("2d");
+let context = canvas.getContext("2d");
 context.strokeStyle = "#df4b26";
 context.lineJoin = "round";
 context.lineWidth = 19;
@@ -75,9 +66,9 @@ function handleChangeValue(value) {
     container.style.cursor = `url('https://ecepishy.sirv.com/Images/%E2%80%94Pngtree%E2%80%94black%20ring_5487778.png?w=${value}&h=${value}'),auto`;
 }
 
-var isPaint = false;
-var lastPointerPosition;
-var mode = "brush";
+let isPaint = false;
+let lastPointerPosition;
+let mode = "brush";
 
 function reset() {
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -88,91 +79,113 @@ for (let i = 0; i < color.length; i++) {
     color[i].style.backgroundColor = color[i].dataset.color;
     color[i].addEventListener("click", (e) => {
         context.strokeStyle = color[i].dataset.color;
+
+        for (let j = 0; j < tr.nodes().length; j++) {
+            let node = tr.nodes()[j];
+            node.fill(color[i].dataset.color)
+        }
     });
 }
 
 for (let i = 0; i < shapes.length; i++) {
     shapes[i].addEventListener("dragend", (e) => {
-        lastPointerPosition = stage.getPointerPosition();
-        switch (shapes[i].dataset.shape) {
-            case "circle": {
-                let circle = new Konva.Circle({
-                    x: getPos().x,
-                    y: getPos().y,
-                    radius: 70,
-                    fill: "red",
-                    stroke: "yellow",
-                    strokeWidth: 4,
-                    name: "rect",
-                    draggable: true,
-                });
-                layer.add(circle);
-                break;
-            }
-            case "square": {
-                let square = new Konva.Rect({
-                    x: getPos().x,
-                    y: getPos().y,
-                    fill: "red",
-                    name: "rect",
-                    stroke: "orange",
-                    strokeWidth: 4,
-                    draggable: true,
-                    width: 200,
-                    height: 200,
-                });
-                layer.add(square);
-                break;
-            }
-            case "rect": {
-                let rect = new Konva.Rect({
-                    x: getPos().x,
-                    y: getPos().y,
-                    fill: "red",
-                    stroke: "black",
-                    strokeWidth: 4,
-                    name: "rect",
-                    draggable: true,
-                    width: 200,
-                    height: 100,
-                });
-                layer.add(rect);
-                break;
-            }
-            case "triangle": {
-                var triangle = new Konva.RegularPolygon({
-                    x: getPos().x,
-                    y: getPos().y,
-                    sides: 3,
-                    radius: 70,
-                    fill: "red",
-                    draggable: true,
-                    stroke: "black",
-                    name: "rect",
-                    strokeWidth: 20,
-                    lineJoin: "round",
-                });
+        const { clientX, clientY } = e
+        screenText.setText(`X: ${clientX} Y: ${clientY} `)
 
-                // add the shape to the layer
-                layer.add(triangle);
-                break;
-            }
+        let pos = {
+            x: clientX - container.offsetLeft,
+            y: clientY - container.offsetTop,
         }
 
-        console.log(shapes[i].dataset.shape);
+        let newShape
+
+        switch (shapes[i].dataset.shape) {
+            case "circle":
+                {
+                    newShape = new Konva.Circle({
+                        x: pos.x,
+                        y: pos.y,
+                        radius: 70,
+                        fill: "red",
+                        stroke: "yellow",
+                        strokeWidth: 4,
+                        name: "rect",
+                        draggable: true,
+                    });
+                    break;
+                }
+            case "square":
+                {
+                    newShape = new Konva.Rect({
+                        fill: "red",
+                        name: "rect",
+                        stroke: "orange",
+                        strokeWidth: 4,
+                        draggable: true,
+                        width: 200,
+                        height: 200,
+                    });
+
+                    let width = newShape.width();
+                    let height = newShape.height();
+                    newShape.setX(pos.x - width / 2);
+                    newShape.setY(pos.y - height / 2);
+                    break;
+                }
+            case "rect":
+                {
+                    newShape = new Konva.Rect({
+                        fill: "red",
+                        name: "rect",
+                        stroke: "orange",
+                        strokeWidth: 4,
+                        draggable: true,
+                        width: 100,
+                        height: 200,
+                    });
+
+                    let width = newShape.width();
+                    let height = newShape.height();
+                    newShape.setX(pos.x - width / 2);
+                    newShape.setY(pos.y - height / 2);
+                    break;
+                }
+            case "triangle":
+                {
+                    newShape = new Konva.RegularPolygon({
+                        x: pos.x,
+                        y: pos.y,
+                        sides: 3,
+                        radius: 70,
+                        fill: "red",
+                        draggable: true,
+                        stroke: "black",
+                        name: "rect",
+                        strokeWidth: 20,
+                        lineJoin: "round",
+                    });
+                    break;
+                }
+        }
+
+        tr.nodes([newShape])
+        layer.add(newShape);
+
     });
 }
 
-stage.on("mousedown touchstart", function () {
+stage.on("mousedown touchstart", function() {
     isPaint = true;
     lastPointerPosition = stage.getPointerPosition();
 });
 
-stage.on("mouseup touchend", function () {
+stage.on("mouseup touchend", function() {
     isPaint = false;
 });
 
-stage.on("mousemove touchmove", function () {
+stage.on("mousemove touchmove", function() {
+
+    screenText.setText(`X: ` + stage.getPointerPosition().x + ` Y: ` + stage.getPointerPosition().y)
     if (!drawMode.checked) {
         return;
     }
@@ -189,14 +202,14 @@ stage.on("mousemove touchmove", function () {
 
     context.beginPath();
 
-    var localPos = {
+    let localPos = {
         x: lastPointerPosition.x - image.x(),
         y: lastPointerPosition.y - image.y(),
     };
 
     context.moveTo(localPos.x, localPos.y);
 
-    var pos = stage.getPointerPosition();
+    let pos = stage.getPointerPosition();
 
     localPos = {
         x: pos.x - image.x(),
@@ -213,67 +226,21 @@ stage.on("mousemove touchmove", function () {
     layer.batchDraw();
 });
 
-select.addEventListener("change", function () {
+select.addEventListener("change", function() {
     mode = select.value;
 });
 
-var tr = new Konva.Transformer();
 
-layer.add(tr);
-// tr.nodes([circle, blueLine]);
 
-var selectionRectangle = new Konva.Rect({
-    fill: "rgba(0,0,255,0.5)",
-    visible: true,
-});
-layer.add(selectionRectangle);
-
-var x1, y1, x2, y2;
-stage.on("mousedown touchstart", (e) => {
-    // do nothing if we mousedown on any shape
-    if (e.target !== stage) {
-        return;
-    }
-    e.evt.preventDefault();
-    x1 = stage.getPointerPosition().x;
-    y1 = stage.getPointerPosition().y;
-    x2 = stage.getPointerPosition().x;
-    y2 = stage.getPointerPosition().y;
-
-    selectionRectangle.visible(true);
-    selectionRectangle.width(0);
-    selectionRectangle.height(0);
-});
-stage.on("mouseup touchend", (e) => {
-    // do nothing if we didn't start selection
-    if (!selectionRectangle.visible()) {
-        return;
-    }
-    e.evt.preventDefault();
-    setTimeout(() => {
-        selectionRectangle.visible(false);
-    });
-
-    var shapes = stage.find(".rect");
-    var box = selectionRectangle.getClientRect();
-    var selected = shapes.filter((shape) => Konva.Util.haveIntersection(box, shape.getClientRect()));
-    tr.nodes(selected);
-});
-
-stage.on("click tap", function (e) {
-    // if we are selecting with rect, do nothing
-    if (selectionRectangle.visible()) {
-        return;
-    }
-
+stage.on("click tap", function(e) {
     // if click on empty area - remove all selections
     if (e.target === stage) {
-        tr.nodes([]);
         return;
     }
 
     // do nothing if clicked NOT on our rectangles
     if (!e.target.hasName("rect")) {
+        tr.nodes([]);
         return;
     }
 
@@ -298,3 +265,5 @@ stage.on("click tap", function (e) {
         tr.nodes(nodes);
     }
 });
+
+stage.add(transformLayer);
